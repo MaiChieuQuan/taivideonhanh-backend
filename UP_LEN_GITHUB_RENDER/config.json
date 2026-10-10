@@ -1,0 +1,13 @@
+{
+  "adminPassword": "123123123",
+  "zalo": "",
+  "fb": "",
+  "tele": "",
+  "zalo_label": "Nhắn tin Zalo 24/7",
+  "fb_label": "Fanpage / Messenger",
+  "tele_label": "Kênh hỗ trợ 24/7",
+  "zalo_enabled": true,
+  "fb_enabled": true,
+  "tele_enabled": true,
+  "hotline": ""
+}
