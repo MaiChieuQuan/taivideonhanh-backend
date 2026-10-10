@@ -1,0 +1,2 @@
+﻿/api/* https://musicians-package-ingredients-readings.trycloudflare.com/api/:splat 200
+/outputs/* https://musicians-package-ingredients-readings.trycloudflare.com/outputs/:splat 200
