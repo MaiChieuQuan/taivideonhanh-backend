@@ -1226,14 +1226,12 @@ async def download_url(req: DownloadUrlRequest):
                         'youtube': {'player_client': ['android']},
                         'soundcloud': {'formats': ['http', 'hls']}
                     },
-                    'http_headers': {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    }
+
                 }
             else:
                 return {
                     'ffmpeg_location': ffmpeg_bin,
-                    'format': f'bestvideo[height<={max_h}][format_id!*=drm][ext=mp4]+bestaudio[ext=m4a]/18/best[height<={max_h}][ext=mp4]/best',
+                    'format': f'18/bestvideo[height<={max_h}][format_id!*=drm][ext=mp4]+bestaudio[ext=m4a]/best[height<={max_h}][ext=mp4]/best',
                     'outtmpl': out_tmpl,
                     'merge_output_format': 'mp4',
                     'quiet': True,
@@ -1247,9 +1245,7 @@ async def download_url(req: DownloadUrlRequest):
                     'extractor_args': {
                         'youtube': {'player_client': ['android']}
                     },
-                    'http_headers': {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    }
+
                 }
 
         title = f"download_{work_id}"
