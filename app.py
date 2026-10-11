@@ -1132,6 +1132,12 @@ async def download_url(req: DownloadUrlRequest):
                 shutil.copy2(target_file, upload_dest)
             except Exception:
                 pass
+            if req.task_id:
+                download_progress_map[req.task_id] = {
+                    "status": "done",
+                    "percent": 100.0,
+                    "stage": "Hoàn tất!"
+                }
             stat = target_file.stat()
             return {
                 "success": True,
@@ -1211,13 +1217,13 @@ async def download_url(req: DownloadUrlRequest):
                     'quiet': True,
                     'no_warnings': True,
                     'noplaylist': True,
-                    'socket_timeout': 5,
-                    'retries': 2,
-                    'fragment_retries': 2,
+                    'socket_timeout': 30,
+                    'retries': 5,
+                    'fragment_retries': 5,
                     'concurrent_fragment_downloads': 16,
                     'progress_hooks': [ytdlp_progress_hook],
                     'extractor_args': {
-                        'youtube': {'player_client': ['android', 'web']},
+                        'youtube': {'player_client': ['android', 'ios', 'mweb', 'web']},
                         'soundcloud': {'formats': ['http', 'hls']}
                     },
                     'http_headers': {
@@ -1233,13 +1239,13 @@ async def download_url(req: DownloadUrlRequest):
                     'quiet': True,
                     'no_warnings': True,
                     'noplaylist': True,
-                    'socket_timeout': 5,
-                    'retries': 2,
-                    'fragment_retries': 2,
+                    'socket_timeout': 30,
+                    'retries': 5,
+                    'fragment_retries': 5,
                     'concurrent_fragment_downloads': 16,
                     'progress_hooks': [ytdlp_progress_hook],
                     'extractor_args': {
-                        'youtube': {'player_client': ['android', 'web']}
+                        'youtube': {'player_client': ['android', 'ios', 'mweb', 'web']}
                     },
                     'http_headers': {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -1275,7 +1281,7 @@ async def download_url(req: DownloadUrlRequest):
                 # Kích hoạt Smart Fallback giải mã luồng dự phòng (DRM / 403 / No Video)
                 song_search_title = ""
                 try:
-                    with yt_dlp.YoutubeDL({'quiet': True, 'extract_flat': True, 'socket_timeout': 5}) as meta_ydl:
+                    with yt_dlp.YoutubeDL({'quiet': True, 'extract_flat': True, 'socket_timeout': 30}) as meta_ydl:
                         meta = meta_ydl.extract_info(url, download=False)
                         if meta:
                             t = meta.get('title', '')
@@ -1328,6 +1334,21 @@ async def download_url(req: DownloadUrlRequest):
             if mp4_out.exists():
                 target_file.unlink(missing_ok=True)
                 target_file = mp4_out
+
+        # Làm sạch tên file URL-safe (loại bỏ ký tự lạ, dấu #, khoảng trắng)
+        import re
+        clean_stem = re.sub(r'[^\w\s\-_]', '', target_file.stem).strip()
+        clean_stem = re.sub(r'\s+', '_', clean_stem)[:60].strip('_')
+        if not clean_stem:
+            clean_stem = f"media_{work_id}"
+        clean_filename = f"{clean_stem}_{work_id}{target_file.suffix}"
+        clean_path = OUTPUT_DIR / clean_filename
+        if clean_path != target_file:
+            try:
+                target_file.rename(clean_path)
+                target_file = clean_path
+            except Exception:
+                pass
 
         if req.task_id:
             download_progress_map[req.task_id] = {
